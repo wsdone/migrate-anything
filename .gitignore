@@ -1,0 +1,7 @@
+.DS_Store
+*.pyc
+__pycache__/
+*.swp
+*.swo
+*~
+# .claude/ commands are part of this project — do NOT ignore them

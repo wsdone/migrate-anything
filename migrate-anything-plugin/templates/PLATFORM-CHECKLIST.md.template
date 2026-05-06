@@ -1,0 +1,97 @@
+---
+project_name: "{{ project_name }}"
+source_platform: "{{ source_platform }}"
+target_platform: "{{ target_platform }}"
+---
+
+# Platform Checklist: {{ project_name }}
+
+Use this checklist to manually verify the migration on the target platform.
+
+## Build Verification
+
+### Compilation
+- [ ] Project compiles without errors on {{ target_platform }}
+- [ ] No compiler warnings related to platform-specific code
+- [ ] All dependencies are resolved
+- [ ] Build system correctly detects {{ target_platform }}
+
+### Linking
+- [ ] All libraries are available on {{ target_platform }}
+- [ ] No undefined symbol errors
+- [ ] No missing framework errors
+
+### Packaging
+- [ ] Application can be installed on {{ target_platform }}
+- [ ] Desktop shortcut/start menu entry created (if applicable)
+- [ ] File associations work (if applicable)
+
+## Runtime Verification
+
+### Application Launch
+- [ ] Application starts without errors
+- [ ] Main window appears (if GUI app)
+- [ ] No crash on startup
+- [ ] Configuration files are loaded correctly
+- [ ] Command-line arguments are parsed correctly
+
+### Core Functionality
+- [ ] Basic operations work as expected
+- [ ] File open/save works with {{ target_platform }} paths
+- [ ] File dialogs show correct directories
+- [ ] Clipboard operations work
+- [ ] Drag and drop works (if applicable)
+
+### Platform Integration
+- [ ] System tray / dock icon appears (if applicable)
+- [ ] Notifications work (if applicable)
+- [ ] Keyboard shortcuts work correctly
+- [ ] HiDPI scaling is correct
+- [ ] Multiple monitor support works
+
+### Performance
+- [ ] Application responds within acceptable time
+- [ ] No memory leaks (run for extended period)
+- [ ] GPU usage is reasonable (if applicable)
+- [ ] CPU usage is reasonable
+
+## Platform-Specific Checks
+
+{% if target_platform == "linux" %}
+### Linux-Specific
+- [ ] Works on both X11 and Wayland
+- [ ] Follows XDG directory specification
+- [ ] `.desktop` file is valid
+- [ ] Icon installed in hicolor theme
+- [ ] AppStream metadata is correct (if applicable)
+- [ ] File permissions are correct (executable bit set)
+{% elif target_platform == "macos" %}
+### macOS-Specific
+- [ ] App bundle structure is correct
+- [ ] `Info.plist` is valid
+- [ ] Code signing works
+- [ ] Notarization passes (if distributing)
+- [ ] Universal binary (ARM + x86) if needed
+{% elif target_platform == "windows" %}
+### Windows-Specific
+- [ ] No hardcoded Unix paths
+- [ ] Registry entries created correctly (if needed)
+- [ ] MSI or exe installer works
+- [ ] Uninstaller removes all files
+- [ ] UAC elevation works correctly (if needed)
+{% endif %}
+
+## Known Issues and Workarounds
+
+| Issue | Severity | Workaround | Status |
+|-------|----------|------------|--------|
+{% for issue in known_issues %}
+| {{ issue.description }} | {{ issue.severity }} | {{ issue.workaround }} | {{ issue.status }} |
+{% endfor %}
+
+## Sign-Off
+
+- **Build verification**: _______________ Date: ________
+- **Runtime verification**: _______________ Date: ________
+- **Platform-specific checks**: _______________ Date: ________
+- **Final approval**: _______________ Date: ________

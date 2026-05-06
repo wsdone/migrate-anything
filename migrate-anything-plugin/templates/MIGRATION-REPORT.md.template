@@ -1,0 +1,114 @@
+---
+source_platform: "{{ source_platform }}"
+target_platform: "{{ target_platform }}"
+project_name: "{{ project_name }}"
+complexity_score: {{ complexity_score }}
+complexity_level: "{{ complexity_level }}"
+migration_date: "{{ migration_date }}"
+---
+
+# Migration Report: {{ project_name }}
+
+**Source Platform**: {{ source_platform }}
+**Target Platform**: {{ target_platform }}
+**Migration Date**: {{ migration_date }}
+**Overall Complexity**: {{ complexity_level }} ({{ complexity_score }}/10)
+
+## Summary
+
+{{ summary }}
+
+## Platform Dependency Inventory
+
+| Dependency | Category | Files Affected | LoC | Complexity | Status |
+|------------|----------|---------------|-----|------------|--------|
+{% for dep in dependencies %}
+| {{ dep.name }} | {{ dep.category }} | {{ dep.files }} | {{ dep.loc }} | {{ dep.complexity_level }} ({{ dep.complexity_score }}) | {{ dep.status }} |
+{% endfor %}
+
+**Total Dependencies**: {{ dependencies | length }}
+**Migrated**: {{ migrated_count }}
+**Partially Migrated**: {{ partial_count }}
+**Not Migrated**: {{ not_migrated_count }}
+
+## Migration Strategy
+
+| Dependency | Strategy | Target Replacement | Rationale |
+|------------|----------|--------------------|-----------|
+{% for dep in dependencies %}
+| {{ dep.name }} | {{ dep.strategy }} | {{ dep.replacement }} | {{ dep.rationale }} |
+{% endfor %}
+
+## Build System Changes
+
+**Source Build System**: {{ source_build_system }}
+**Target Build System**: {{ target_build_system }}
+
+{% if build_changes %}
+### Changes Made
+{% for change in build_changes %}
+- {{ change.description }}
+{% endfor %}
+{% endif %}
+
+## Files Changed
+
+**Total files modified**: {{ files_changed | length }}
+
+### By Category
+{% for category, files in files_by_category %}
+**{{ category }}** ({{ files | length }} files):
+{% for file in files %}
+- `{{ file.path }}` — {{ file.change_type }}
+{% endfor %}
+{% endfor %}
+
+## Testing Results
+
+{% if test_results %}
+**Tests Run**: {{ test_results.total }}
+**Passed**: {{ test_results.passed }}
+**Failed**: {{ test_results.failed }}
+**Skipped**: {{ test_results.skipped }}
+
+{% if test_results.failures %}
+### Failures
+{% for failure in test_results.failures %}
+- `{{ failure.test_name }}`: {{ failure.reason }}
+{% endfor %}
+{% endif %}
+{% else %}
+Tests not yet run.
+{% endif %}
+
+## Known Limitations
+
+{% if limitations %}
+{% for limitation in limitations %}
+- **{{ limitation.area }}**: {{ limitation.description }}
+  {% if limitation.workaround %}Workaround: {{ limitation.workaround }}{% endif %}
+{% endfor %}
+{% else %}
+No known limitations.
+{% endif %}
+
+## Manual Steps Required
+
+{% if manual_steps %}
+{% for step in manual_steps %}
+{{ step.number }}. **{{ step.title }}**: {{ step.description }}
+{% endfor %}
+{% else %}
+No manual steps required.
+{% endif %}
+
+## Refinement Todo
+
+{% if refinement_items %}
+The following items need further work via `/migrate-anything:refine`:
+{% for item in refinement_items %}
+- [ ] **{{ item.priority }}**: {{ item.description }}
+{% endfor %}
+{% else %}
+Migration is complete. No refinement needed.
+{% endif %}

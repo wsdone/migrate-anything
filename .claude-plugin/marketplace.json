@@ -1,0 +1,20 @@
+{
+  "name": "migrate-anything",
+  "owner": {
+    "name": "migrate-anything contributors"
+  },
+  "metadata": {
+    "description": "Migrate software source code between operating system platforms (Mac, Windows, Linux) using AI-driven analysis and transformation."
+  },
+  "plugins": [
+    {
+      "name": "migrate-anything",
+      "source": "./migrate-anything-plugin",
+      "description": "Migrate software source code between operating system platforms (Mac, Windows, Linux) using AI-driven analysis and transformation.",
+      "author": {
+        "name": "migrate-anything contributors"
+      },
+      "category": "development"
+    }
+  ]
+}
