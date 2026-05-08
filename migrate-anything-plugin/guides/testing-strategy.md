@@ -61,28 +61,7 @@ Compilation passing means syntax and linking are correct. It does NOT mean:
 
 ### Testing Platform Abstraction Layers
 
-The platform abstraction layer is the most critical component to test. If it's wrong, everything built on it is wrong. Test the interface, not the implementation:
-
-```cpp
-// Test the abstraction interface — run on ALL platforms
-void test_filesystem_abstraction() {
-    // These should work identically on all platforms
-    auto home = platform::get_home_directory();
-    assert(!home.empty());
-    assert(platform::path_is_absolute(home));
-
-    auto joined = platform::path_join({home, "documents", "file.txt"});
-    assert(joined.find("file.txt") != string::npos);
-    assert(!platform::file_exists(joined));  // Doesn't exist yet
-
-    platform::write_file(joined, "test content");
-    assert(platform::file_exists(joined));
-    assert(platform::read_file(joined) == "test content");
-    platform::delete_file(joined);
-}
-```
-
-**Run abstraction tests on BOTH source and target platforms** if possible. The same test should pass on both — that's how you know the abstraction is correct.
+The platform abstraction layer is the most critical component to test. If it's wrong, everything built on it is wrong. Test the interface, not the implementation. Run abstraction tests on BOTH source and target platforms if possible — the same test should pass on both.
 
 ### The Compile-Test-Fix Loop
 
@@ -101,42 +80,14 @@ During migration, follow this loop for each dependency:
 
 ## CI Configuration for Cross-Platform Testing
 
-GitHub Actions multi-platform CI:
-
-```yaml
-name: Cross-Platform Tests
-on: [push, pull_request]
-jobs:
-  test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install -y libgtk-4-dev
-      - name: Build
-        run: cmake -B build && cmake --build build --parallel
-      - name: Test
-        run: cd build && ctest --output-on-failure
-```
-
-**Set up CI on day one of the migration.** Don't wait until the end. Cross-platform failures are much cheaper to fix when caught immediately.
+Set up CI on day one of the migration (GitHub Actions, GitLab CI, etc.). Cross-platform failures are much cheaper to fix when caught immediately.
 
 ## Handling Existing Test Suites
 
 ### When the source project has tests:
 
 1. **Identify portable tests** — tests that don't call platform-specific APIs
-2. **Mark platform-specific tests** with skip conditions:
-   ```python
-   @pytest.mark.skipif(platform.system() != "Darwin",
-                       reason="Requires macOS AppKit")
-   def test_appkit_window_creation():
-       ...
-   ```
+2. **Mark platform-specific tests** with skip conditions (e.g., `@pytest.mark.skipif` for platform-specific tests)
 3. **Create target-platform equivalents** for skipped tests
 4. **Run all portable tests** to verify no regressions
 
@@ -156,16 +107,7 @@ If developing on a different platform than the target:
 
 1. **Use CI** — GitHub Actions, GitLab CI for multi-platform testing
 2. **Use containers** — Docker for Linux testing from any OS
-3. **Generate a verification script** for manual testing on the target:
-   ```bash
-   #!/bin/bash
-   set -e
-   echo "Building..."
-   cmake -B build && cmake --build build
-   echo "Running tests..."
-   cd build && ctest --output-on-failure
-   echo "Migration verification PASSED"
-   ```
+3. **Generate a verification script** for manual testing on the target platform
 
 ## Functional Testing by Project Type
 
@@ -173,80 +115,15 @@ After compilation and abstraction tests pass, verify the migrated code actually 
 
 ### CLI Tools (very testable)
 
-CLI tools are the easiest to functionally test — run the binary, check stdout/stderr and exit codes.
-
-```bash
-#!/bin/bash
-# Functional test for migrated CLI tool
-TOOL="./build/migrated-tool"
-
-# Test: help flag works
-$TOOL --help > /dev/null 2>&1
-assert_exit_code 0 "--help should succeed"
-
-# Test: version output
-VERSION=$($TOOL --version)
-assert_contains "$VERSION" "1.0" "version output"
-
-# Test: input → output
-$TOOL process input.txt -o output.txt
-assert_exit_code 0 "process should succeed"
-assert_file_exists output.txt
-assert_file_contains output.txt "expected content"
-
-# Test: error handling
-$TOOL nonexistent-file 2>/dev/null
-assert_exit_code_not 0 "missing file should fail"
-```
-
-Generate these tests by:
-1. Reading the CLI's `--help` output
-2. Identifying the main commands/flags
-3. Writing test cases for each with sample inputs
-4. Verifying outputs
+CLI tools are the easiest to functionally test. Generate tests by reading the CLI's `--help` output, identifying main commands/flags, and writing test cases that verify exit codes, stdout/stderr, and output files for each.
 
 ### Libraries (testable)
 
-Write a test program that links against the migrated library and calls its public API:
-
-```c
-// test_library.c — compile and run on target platform
-#include <migrated_lib.h>
-#include <assert.h>
-
-int main() {
-    // Init
-    assert(lib_init() == 0);
-
-    // Core functionality
-    result_t* r = lib_process("test input");
-    assert(r != NULL);
-    assert(r->status == STATUS_OK);
-
-    // Cleanup
-    lib_free_result(r);
-    lib_cleanup();
-    return 0;
-}
-```
+Write a test program that links against the migrated library and calls its public API, verifying init, core functionality, and cleanup.
 
 ### Daemons/Services (moderately testable)
 
-Test start/stop, port binding, and basic operations:
-
-```bash
-# Start the migrated service
-./build/migrated-service --port 9090 &
-PID=$!
-sleep 2
-
-# Test: responds to requests
-curl -s http://localhost:9090/health | grep -q "ok"
-assert_exit_code 0 "health endpoint"
-
-# Cleanup
-kill $PID
-```
+Test start/stop, port binding, and basic request/response operations.
 
 ### GUI Applications (limited automated testing)
 

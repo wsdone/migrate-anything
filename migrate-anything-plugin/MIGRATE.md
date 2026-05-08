@@ -12,16 +12,7 @@ simple API swaps to complete platform-layer rewrites.
 
 ### Phase 0: Platform Detection and Source Acquisition
 
-1. **Detect the source platform** by scanning for platform indicators:
-   - **macOS indicators**: `AppKit`, `Foundation`, `Cocoa`, `CoreGraphics`, `Metal`,
-     `CoreAnimation`, `.xcodeproj/`, `Package.swift` with `platform: .macOS`,
-     `#import <AppKit/>`, `NSApplication`, `NSWindow`, Swift files with `import Cocoa`
-   - **Windows indicators**: `<windows.h>`, `WinMain`, `HWND`, `COM`, `WPF`, `WinUI`,
-     `.sln`, `.vcxproj`, `MSVC`, `DirectX`, `GDI`, `registry`, `HRESULT`, `CoCreateInstance`
-   - **Linux indicators**: `X11/Xlib.h`, `wayland-client.h`, `dbus/dbus.h`, `udev`,
-     `systemd`, `/proc/`, `/sys/`, `gtk/gtk.h`, `QApplication` (Qt), `SDL`
-   - **Cross-platform indicators**: `#ifdef _WIN32`, `#ifdef __APPLE__`, `#ifdef __linux__`,
-     platform abstraction layers already present
+1. **Detect the source platform** by scanning for platform indicators (imports, build system files, framework references)
 
 2. **Detect the target platform**:
    - Always the current running OS — migration must be testable locally
@@ -33,7 +24,7 @@ simple API swaps to complete platform-layer rewrites.
    - Language migration adds significant scope — warn the user
    - If `--lang` is NOT specified, do NOT attempt language migration
 
-3. **Acquire source code**:
+4. **Acquire source code**:
    - If a GitHub URL is provided, clone it to a local working directory
    - Verify the local path exists and contains source code
    - Derive the project name from the directory name
@@ -194,14 +185,7 @@ This gate prevents wasting effort on projects that should be rewritten from scra
    - Create a `platform/` or `os/` directory with per-platform implementations
    - Define a common interface header or module
    - Use factory pattern or conditional compilation (`#ifdef`)
-   - Example structure:
-     ```
-     platform/
-     ├── platform.h          # Common interface
-     ├── platform_linux.cpp  # Linux implementation
-     ├── platform_macos.cpp  # macOS implementation
-     └── platform_win32.cpp  # Windows implementation
-     ```
+   - Example: `platform/` directory with `platform.h` interface and per-platform `.cpp` implementations
 
 4. **Decompose into sub-projects**. For Medium and Hard migrations, split the work into
    independently verifiable sub-projects. Each sub-project should be completable in a
@@ -263,29 +247,14 @@ This gate prevents wasting effort on projects that should be rewritten from scra
    - Consider **Meson** for projects that value simplicity
    - Keep existing build system if it's already cross-platform
 
-2. **Common build system transitions**:
+2. **Handle during migration**: compiler flags, link libraries/frameworks, include paths, platform conditionals, resource files, code signing
 
-   | Source | Target | Approach |
-   |--------|--------|----------|
-   | Xcode (.xcodeproj) | CMake | Parse `project.pbxproj`, generate `CMakeLists.txt` |
-   | Visual Studio (.sln) | CMake | Parse `.sln`/`.vcxproj` XML, generate `CMakeLists.txt` |
-   | MSBuild | CMake/Meson | Convert `.csproj`/`.vbproj` properties |
-   | Makefile | CMake | Convert rules and variables |
-
-3. **Handle during migration**:
-   - Compiler flags and preprocessor defines
-   - Link libraries and frameworks (translate `-framework AppKit` to `-lgtk-3`)
-   - Include paths and system include directories
-   - Platform conditionals (`WIN32`, `APPLE`, `LINUX`)
-   - Resource file embedding (`.rc` on Windows, `.plist` on macOS, `.desktop` on Linux)
-   - Code signing differences per platform
-
-4. **Set up the test framework** on the target platform:
+3. **Set up the test framework** on the target platform:
    - For TDD track: port tests to a cross-platform test framework (Google Test, pytest, etc.)
    - For FI track: set up a basic test runner for smoke tests
    - Configure the build system to build and run tests
 
-5. **Verify the build system works** before proceeding to code migration
+4. **Verify the build system works** before proceeding to code migration
 
 ### Phase 4: Code Migration (Two Tracks)
 
