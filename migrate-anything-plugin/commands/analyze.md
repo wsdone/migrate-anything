@@ -73,7 +73,7 @@ For each dependency in the PDI, recommend a migration strategy:
 | Library Migration | Replace entire library with cross-platform equivalent |
 | Rewrite | No equivalent exists |
 
-Use `guides/platform-api-mapping.md` to find target platform equivalents.
+Use the agent's built-in API knowledge to find target platform equivalents.
 
 ### Step 6: Effort Estimation
 

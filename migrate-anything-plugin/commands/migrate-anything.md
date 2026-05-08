@@ -58,7 +58,7 @@ This command implements the complete migrate-anything methodology to transform p
 **Checkpoint**: Present feasibility assessment to user. If STOP or WARN, get explicit confirmation to proceed before Phase 2.
 
 ### Phase 2: Migration Architecture Design
-- Map each dependency to target platform equivalent using `guides/platform-api-mapping.md`
+- Map each dependency to target platform equivalent using the agent's built-in API knowledge
 - Decide migration strategy per dependency:
   - **Direct Replacement** for 1:1 API mapping (e.g., `CreateFileW` → `open()`)
   - **Cross-Platform Abstraction** for multi-platform support (e.g., `platform/` directory)
@@ -77,7 +77,7 @@ This command implements the complete migrate-anything methodology to transform p
 - Handle compiler flags, link libraries, platform conditionals
 - Set up test framework on target platform
 - **Verify the build system compiles** before proceeding to Phase 4
-- See `guides/build-system-migration.md` for patterns
+- Translate build system to cross-platform (prefer CMake)
 
 **Checkpoint**: Build system produces a valid (possibly incomplete) project structure.
 
@@ -102,9 +102,7 @@ Follow the track determined in Phase 1. See MIGRATE.md Phase 4 for full details.
 - Handle filesystem, threading, and IPC differences
 - Scan for case sensitivity issues in includes and file references
 - See guides for specific patterns:
-  - `guides/graphics-api-migration.md` for GPU/graphics
-  - `guides/ui-framework-migration.md` for UI frameworks
-  - `guides/filesystem-migration.md` for file operations
+  - Handle graphics, UI, and filesystem differences
 
 **Checkpoint**: Commit after each dependency. If build breaks, fix before moving to next dependency.
 

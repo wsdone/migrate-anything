@@ -16,7 +16,7 @@ Display platform API equivalents and cross-platform library recommendations for 
 
 ## What This Command Does
 
-Uses the agent's built-in API knowledge and the decision framework in `guides/platform-api-mapping.md` to display relevant API equivalents for the specified source → target platform pair. Also shows cross-platform library recommendations from the guide that can replace platform-specific code entirely.
+Uses the agent's built-in API knowledge to display relevant API equivalents for the specified source → target platform pair. Also shows cross-platform library recommendations from the guide that can replace platform-specific code entirely.
 
 ### Step 1: Validate Arguments
 
@@ -24,7 +24,7 @@ Confirm both `$1` and `$2` are valid platform names. Report an error if either i
 
 ### Step 2: Generate API Equivalents
 
-Read `guides/platform-api-mapping.md` for the decision framework and cross-platform library recommendations. Use your built-in knowledge to produce the source → target API equivalents for each category.
+Use the agent's built-in knowledge to produce the source → target API equivalents for each category.
 
 ### Step 3: Display Output
 
@@ -105,9 +105,7 @@ Cross-Platform Alternative: wgpu, bgfx, SDL, Cairo
 ## Notes
 
 - This is a read-only reference command — no code is modified
-- The guide `guides/platform-api-mapping.md` provides the decision framework and library recommendations; the agent supplies specific API equivalents from its built-in knowledge
+- The agent uses its built-in knowledge to supply API equivalents and library recommendations
 - When a direct API mapping doesn't exist, the table shows a recommended cross-platform alternative
 - For same-platform mappings (e.g., `linux linux`), display cross-platform library recommendations only
-- For detailed filesystem migration pitfalls, see `guides/filesystem-migration.md`
-- For detailed graphics migration patterns, see `guides/graphics-api-migration.md`
-- For detailed UI migration patterns, see `guides/ui-framework-migration.md`
+
